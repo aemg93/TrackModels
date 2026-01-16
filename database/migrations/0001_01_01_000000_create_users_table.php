@@ -13,15 +13,33 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+            // Datos básicos
             $table->string('name');
-            $table->string('last_name')->nullable();  
+            $table->string('last_name')->nullable();
             $table->string('email')->unique();
-            $table->string('contact')->nullable();     
-            $table->string('avatar')->nullable();      
-            $table->date('birth_date')->nullable();    
-            $table->text('bio')->nullable();           
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Perfil extendido
+            $table->string('stage_name')->nullable();   // nombre artístico
+            $table->string('contact')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->string('country')->nullable();
+            $table->string('city')->nullable();
+            $table->string('avatar')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->enum('gender', ['male','female','other'])->nullable();
+            $table->text('bio')->nullable();
+            $table->string('document_path')->nullable();
+            $table->string('social_links')->nullable();
+
+            // Estado y métricas
+            $table->boolean('active')->default(true);
+            $table->decimal('earnings', 10, 2)->default(0);
+
+            // Campos de autenticación
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

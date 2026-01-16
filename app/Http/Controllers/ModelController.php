@@ -14,8 +14,8 @@ class ModelController extends Controller
     public function index()
     {
         $models = User::role('Modelo')
-            ->with('platforms') // cargamos plataformas
-            ->get();
+            ->with('platforms')
+            ->paginate(10); // 👈 mejor usar paginate
 
         return Inertia::render('Models/Index', [
             'models' => $models,
@@ -36,19 +36,30 @@ class ModelController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'active'   => 'boolean',
+            'name'          => 'required|string|max:255',
+            'last_name'     => 'nullable|string|max:255',
+            'stage_name'    => 'nullable|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users',
+            'phone'         => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:100',
+            'city'          => 'nullable|string|max:100',
+            'birth_date'    => 'nullable|date',
+            'gender'        => 'nullable|in:male,female,other',
+            'bio'           => 'nullable|string',
+            'document_path' => 'nullable|string|max:255',
+            'avatar'        => 'nullable|string|max:255',
+            'social_links'  => 'nullable|string|max:255',
+            'active'        => 'boolean',
+            'earnings'      => 'nullable|numeric|min:0',
+            'password'      => 'required|string|min:8',
         ]);
 
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => bcrypt($data['password']),
-            'active'   => $data['active'] ?? true,
-        ]);
+        $data['password'] = bcrypt($data['password']);
+        $data['active']   = $data['active'] ?? true;
+        $data['earnings'] = $data['earnings'] ?? 0;
 
+        $user = User::create($data);
         $user->assignRole('Modelo');
 
         return redirect()->route('models.index')
@@ -81,21 +92,30 @@ class ModelController extends Controller
     public function update(Request $request, User $model)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users,email,' . $model->id,
-            'password' => 'nullable|string|min:8',
-            'active'   => 'required|boolean',
+            'name'          => 'required|string|max:255',
+            'last_name'     => 'nullable|string|max:255',
+            'stage_name'    => 'nullable|string|max:255',
+            'email'         => "required|string|email|max:255|unique:users,email,{$model->id}",
+            'phone'         => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:100',
+            'city'          => 'nullable|string|max:100',
+            'birth_date'    => 'nullable|date',
+            'gender'        => 'nullable|in:male,female,other',
+            'bio'           => 'nullable|string',
+            'document_path' => 'nullable|string|max:255',
+            'avatar'        => 'nullable|string|max:255',
+            'social_links'  => 'nullable|string|max:255',
+            'active'        => 'boolean',
+            'earnings'      => 'nullable|numeric|min:0',
+            'password'      => 'nullable|string|min:8',
         ]);
 
-        $model->name   = $data['name'];
-        $model->email  = $data['email'];
-        $model->active = $data['active'];
+        $data['active']   = $request->has('active') ? $data['active'] : $model->active;
+        $data['earnings'] = $data['earnings'] ?? $model->earnings;
+        $data['password'] = $data['password'] ? bcrypt($data['password']) : $model->password;
 
-        if (!empty($data['password'])) {
-            $model->password = bcrypt($data['password']);
-        }
-
-        $model->save();
+        $model->update($data);
 
         return redirect()->route('models.index')
                          ->with('success', 'Modelo actualizado correctamente');

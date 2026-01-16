@@ -43,13 +43,13 @@ class RolesSeeder extends Seeder
         ]);
         $modelo->syncPermissions(['view earnings']); // solo ver ganancias
 
-        // 📌 Crear usuarios de prueba (updateOrCreate evita duplicados)
+        // 📌 Crear usuarios de prueba
         $userSuperAdmin = User::updateOrCreate(
             ['email' => 'superadmin@example.com'],
             [
-                'name'      => 'Super',
-                'last_name' => 'Admin', // asegúrate que exista esta columna en users
-                'password'  => bcrypt('password123'),
+                'name'     => 'Super Admin',
+                'password' => bcrypt('password123'),
+                'active'   => true,
             ]
         );
         $userSuperAdmin->syncRoles(['Super Admin']);
@@ -57,9 +57,9 @@ class RolesSeeder extends Seeder
         $userAdmin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name'      => 'Admin',
-                'last_name' => 'User',
-                'password'  => bcrypt('password123'),
+                'name'     => 'Admin User',
+                'password' => bcrypt('password123'),
+                'active'   => true,
             ]
         );
         $userAdmin->syncRoles(['Admin']);
@@ -67,9 +67,9 @@ class RolesSeeder extends Seeder
         $userModel = User::updateOrCreate(
             ['email' => 'model@example.com'],
             [
-                'name'      => 'Modelo',
-                'last_name' => 'Prueba',
-                'password'  => bcrypt('password123'),
+                'name'     => 'Modelo Prueba',
+                'password' => bcrypt('password123'),
+                'active'   => true,
             ]
         );
         $userModel->syncRoles(['Modelo']);
