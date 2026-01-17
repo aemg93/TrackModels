@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('password');
 
             // Perfil extendido
-            $table->string('stage_name')->nullable();   // nombre artístico
+            $table->string('stage_name')->nullable();  
             $table->string('contact')->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();

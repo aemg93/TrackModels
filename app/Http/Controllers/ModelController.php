@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Platform;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,7 +16,7 @@ class ModelController extends Controller
     {
         $models = User::role('Modelo')
             ->with('platforms')
-            ->paginate(10); // 👈 mejor usar paginate
+            ->paginate(10);
 
         return Inertia::render('Models/Index', [
             'models' => $models,
@@ -27,7 +28,9 @@ class ModelController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Models/Create');
+        return Inertia::render('Models/Create', [
+            'platforms' => Platform::all(),
+        ]);
     }
 
     /**
@@ -53,6 +56,8 @@ class ModelController extends Controller
             'active'        => 'boolean',
             'earnings'      => 'nullable|numeric|min:0',
             'password'      => 'required|string|min:8',
+            'platform_ids'  => 'array',
+            'platform_ids.*'=> 'exists:platforms,id',
         ]);
 
         $data['password'] = bcrypt($data['password']);
@@ -61,6 +66,8 @@ class ModelController extends Controller
 
         $user = User::create($data);
         $user->assignRole('Modelo');
+
+        $user->platforms()->sync($data['platform_ids'] ?? []);
 
         return redirect()->route('models.index')
                          ->with('success', 'Modelo creado correctamente');
@@ -82,7 +89,8 @@ class ModelController extends Controller
     public function edit(User $model)
     {
         return Inertia::render('Models/Edit', [
-            'model' => $model->load('platforms'),
+            'model'     => $model->load('platforms'),
+            'platforms' => Platform::all(),
         ]);
     }
 
@@ -109,6 +117,8 @@ class ModelController extends Controller
             'active'        => 'boolean',
             'earnings'      => 'nullable|numeric|min:0',
             'password'      => 'nullable|string|min:8',
+            'platform_ids'  => 'array',
+            'platform_ids.*'=> 'exists:platforms,id',
         ]);
 
         $data['active']   = $request->has('active') ? $data['active'] : $model->active;
@@ -116,6 +126,7 @@ class ModelController extends Controller
         $data['password'] = $data['password'] ? bcrypt($data['password']) : $model->password;
 
         $model->update($data);
+        $model->platforms()->sync($data['platform_ids'] ?? []);
 
         return redirect()->route('models.index')
                          ->with('success', 'Modelo actualizado correctamente');

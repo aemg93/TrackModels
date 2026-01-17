@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -9,25 +10,34 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles; 
+    use HasFactory, Notifiable, HasRoles;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Campos que se pueden asignar masivamente
      */
     protected $fillable = [
         'name',
+        'last_name',
+        'stage_name',
         'email',
+        'contact',
+        'phone',
+        'address',
+        'country',
+        'city',
+        'avatar',
+        'birth_date',
+        'gender',
+        'bio',
+        'document_path',
+        'social_links',
+        'active',
+        'earnings',
         'password',
-        'active', // nuevo campo para estado
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Campos ocultos al serializar
      */
     protected $hidden = [
         'password',
@@ -35,24 +45,19 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts de atributos
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'active' => 'boolean', // casteo automático a boolean
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'active' => 'boolean',
+        'earnings' => 'decimal:2',
+    ];
 
     /**
-     * Relación muchos a muchos con plataformas
+     * Relación con plataformas
      */
     public function platforms()
     {
-        return $this->belongsToMany(Platform::class, 'platform_user', 'user_id', 'platform_id');
+        return $this->belongsToMany(Platform::class);
     }
 }
