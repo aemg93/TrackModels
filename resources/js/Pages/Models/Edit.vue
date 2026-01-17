@@ -260,7 +260,7 @@ const submit = () => {
     radial-gradient(circle at 20% 30%, rgba(255, 0, 204, 0.35) 0%, transparent 35%),
     radial-gradient(circle at 80% 20%, rgba(0, 229, 255, 0.35) 0%, transparent 40%),
     radial-gradient(circle at 60% 80%, rgba(255, 215, 0, 0.35) 0%, transparent 35%);
-  mix-blend: screen;
+ 
 }
 
 /* Tipografía y inputs */
