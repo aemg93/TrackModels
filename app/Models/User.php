@@ -55,9 +55,12 @@ class User extends Authenticatable
 
     /**
      * Relación con plataformas
+     * Incluye credenciales en la tabla pivote platform_user
      */
     public function platforms()
     {
-        return $this->belongsToMany(Platform::class);
+        return $this->belongsToMany(Platform::class, 'platform_user')
+                    ->withPivot(['platform_username', 'platform_password'])
+                    ->withTimestamps();
     }
 }

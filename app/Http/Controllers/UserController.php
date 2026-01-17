@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Platform;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -66,7 +67,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return inertia('SuperAdmin/Show', [ // 👈 ajusta la vista según tu estructura
+        return inertia('SuperAdmin/Show', [
             'user' => $user->load(['roles','platforms']),
         ]);
     }
@@ -117,5 +118,23 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'Usuario eliminado correctamente');
+    }
+
+    /**
+     * Actualizar credenciales de un usuario en una plataforma
+     */
+    public function updatePlatformCredentials(Request $request, User $user, Platform $platform)
+    {
+        $validated = $request->validate([
+            'username' => 'nullable|string|max:255',
+            'password' => 'nullable|string|max:255',
+        ]);
+
+        $user->platforms()->updateExistingPivot($platform->id, [
+            'username' => $validated['username'],
+            'password' => $validated['password'],
+        ]);
+
+        return redirect()->back()->with('success', 'Credenciales actualizadas correctamente');
     }
 }

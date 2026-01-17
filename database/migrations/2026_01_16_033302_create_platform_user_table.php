@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,13 +15,17 @@ return new class extends Migration
 
             // Relación con usuarios
             $table->foreignId('user_id')
-                  ->constrained()
+                  ->constrained('users')   // referencia explícita a la tabla users
                   ->onDelete('cascade');
 
             // Relación con plataformas
             $table->foreignId('platform_id')
-                  ->constrained()
+                  ->constrained('platforms') // referencia explícita a la tabla platforms
                   ->onDelete('cascade');
+
+            // Credenciales específicas de la modelo en esa plataforma
+            $table->string('platform_username')->nullable();
+            $table->string('platform_password')->nullable();
 
             $table->timestamps();
         });

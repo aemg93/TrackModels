@@ -8,9 +8,16 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('platforms', function (Blueprint $table) {
             $table->id();
+
+            // Nombre único de la plataforma (ej: Instagram, OnlyFans, etc.)
             $table->string('name')->unique();
-            $table->decimal('token_rate', 10, 2)->default(0); // tasa de tokens
-            $table->decimal('multiplier', 10, 2)->default(1); // multiplicador
+
+            // Tasa de tokens (ej: valor de cada token en dólares)
+            $table->decimal('token_rate', 10, 2)->default(0);
+
+            // Multiplicador para cálculos adicionales (ej: bonificaciones)
+            $table->decimal('multiplier', 10, 2)->default(1);
+
             $table->timestamps();
         });
     }

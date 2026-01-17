@@ -39,7 +39,14 @@ Route::middleware('auth')->group(function () {
     // Super Admin
     Route::middleware('role:Super Admin')->group(function () {
         Route::resource('superadmin', SuperAdminController::class);
-        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+        // CRUD de usuarios completo
+        Route::resource('users', UserController::class);
+
+        // Ruta para actualizar credenciales en plataformas
+        Route::post('/users/{user}/platforms/{platform}/update',
+            [UserController::class, 'updatePlatformCredentials'])
+            ->name('users.platforms.update');
     });
 
     // Admin y Super Admin → acceso a modelos
