@@ -152,55 +152,51 @@ class ModelController extends Controller
     }
 
     /** Vista global de todos los modelos */
-    public function indexGlobal(Request $request)
-    {
-        $earningsQuery = Earning::with('platform', 'user');
-
-        // "todas" en global = todas las plataformas del sistema
-        if ($request->filled('platform_id') && $request->platform_id !== 'todas') {
-            $earningsQuery->where('platform_id', $request->platform_id);
-        }
-
-        if ($request->filled('from')) {
-            $earningsQuery->whereDate('created_at', '>=', $request->from);
-        }
-        if ($request->filled('to')) {
-            $earningsQuery->whereDate('created_at', '<=', $request->to);
-        }
-        if ($request->filled('period')) {
-            $earningsQuery->where('period', $request->period);
-        }
-
-        if (!$request->anyFilled(['platform_id','from','to','period'])) {
-            $earningsQuery->where('period', now()->format('W-Y'));
-        }
-
-        $earnings = $earningsQuery->get();
-        $allPlatforms = Platform::all();
-
-        $totales = $allPlatforms->map(function ($platform) use ($earnings) {
-            $platformEarnings = $earnings->where('platform_id', $platform->id);
-            return [
-                'platform'     => $platform,
-                'total_tokens' => $platformEarnings->sum('amount_tokens'),
-                'total_usd'    => $platformEarnings->sum('amount_usd'),
-                'total_cop'    => $platformEarnings->sum(fn($e) => $e->amount_usd * $e->exchange_rate),
-            ];
+   public function indexGlobal(Request $request)
+{
+    $earningsQuery = Earning::with('platform', 'user')
+        ->when($request->filled('platform_id') && $request->platform_id !== 'todas', function ($q) use ($request) {
+            $q->where('platform_id', $request->platform_id);
+        })
+        ->when($request->filled('from'), function ($q) use ($request) {
+            $q->whereDate('created_at', '>=', $request->from);
+        })
+        ->when($request->filled('to'), function ($q) use ($request) {
+            $q->whereDate('created_at', '<=', $request->to);
+        })
+        ->when($request->filled('period'), function ($q) use ($request) {
+            $q->where('period', $request->period);
         });
 
-        $totalGeneral = [
-            'tokens' => $earnings->sum('amount_tokens'),
-            'usd'    => $earnings->sum('amount_usd'),
-            'cop'    => $earnings->sum(fn($e) => $e->amount_usd * $e->exchange_rate),
-        ];
-
-        return Inertia::render('Dashboard/Index', [
-            'earnings'      => $earnings,
-            'totales'       => $totales,
-            'totalGeneral'  => $totalGeneral,
-            'filters'       => $request->only(['platform_id', 'from', 'to', 'period']),
-        ]);
+    // Si no hay ningún filtro, aplicar semana actual
+    if (!$request->anyFilled(['platform_id','from','to','period'])) {
+        $earningsQuery->where('period', now()->format('W-Y'));
     }
+
+    $earnings = $earningsQuery->get();
+    $allPlatforms = Platform::all();
+
+    $totales = $allPlatforms->map(fn($platform) => [
+        'platform'     => $platform,
+        'total_tokens' => $earnings->where('platform_id', $platform->id)->sum('amount_tokens'),
+        'total_usd'    => $earnings->where('platform_id', $platform->id)->sum('amount_usd'),
+        'total_cop'    => $earnings->where('platform_id', $platform->id)->sum(fn($e) => $e->amount_usd * $e->exchange_rate),
+    ]);
+
+    $totalGeneral = [
+        'tokens' => $earnings->sum('amount_tokens'),
+        'usd'    => $earnings->sum('amount_usd'),
+        'cop'    => $earnings->sum(fn($e) => $e->amount_usd * $e->exchange_rate),
+    ];
+
+    return Inertia::render('Dashboard/Index', [
+        'earnings'      => $earnings,
+        'totales'       => $totales,
+        'totalGeneral'  => $totalGeneral,
+        'filters'       => $request->only(['platform_id', 'from', 'to', 'period']),
+    ]);
+}
+
 
     public function edit(User $model)
     {
