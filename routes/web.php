@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ModelController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\WorkHourController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -31,12 +32,24 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard'); // fallback genérico
     })->name('dashboard');
 
-    // Perfil
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    /**
+     * Perfil protegido con permisos
+     */
+    Route::middleware(['permission:view own profile'])
+        ->get('/profile/edit', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
 
-    // Super Admin
+    Route::middleware(['permission:edit own profile'])
+        ->patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::middleware(['permission:delete own profile'])
+        ->delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    /**
+     * Super Admin
+     */
     Route::middleware('role:Super Admin')->group(function () {
         Route::resource('superadmin', SuperAdminController::class);
 
@@ -47,9 +60,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/platforms/{platform}/update',
             [UserController::class, 'updatePlatformCredentials'])
             ->name('users.platforms.update');
+
+        // Nueva sección Administradores (Super Admin + Admin)
+        Route::get('/administradores', [AdminController::class, 'index'])->name('administradores.index');
     });
 
-    // Admin y Super Admin → acceso a modelos
+    /**
+     * Admin y Super Admin → acceso a modelos
+     */
     Route::middleware('role:Admin|Super Admin')->group(function () {
         Route::resource('models', ModelController::class)->except(['destroy']);
     });
@@ -59,15 +77,28 @@ Route::middleware('auth')->group(function () {
         Route::delete('/models/{model}', [ModelController::class, 'destroy'])->name('models.destroy');
     });
 
-    // Admin y Super Admin → acceso al dashboard de Admin
+    /**
+     * Admin y Super Admin → acceso al dashboard de Admin
+     */
     Route::middleware('role:Admin|Super Admin')->group(function () {
         Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     });
 
-    // Modelo, Admin y Super Admin → acceso al dashboard de Modelos
+    /**
+     * Modelo, Admin y Super Admin → acceso al dashboard de Modelos
+     */
     Route::middleware('role:Modelo|Admin|Super Admin')->group(function () {
         Route::get('/models', [ModelController::class, 'index'])->name('models.index');
     });
+
+    /**
+     * WorkHours → CRUD protegido con permisos
+     */
+    Route::middleware(['permission:view workhour'])->get('/workhours', [WorkHourController::class, 'index'])->name('workhours.index');
+    Route::middleware(['permission:view workhour'])->get('/workhours/{workhour}', [WorkHourController::class, 'show'])->name('workhours.show');
+    Route::middleware(['permission:create workhour'])->post('/workhours', [WorkHourController::class, 'store'])->name('workhours.store');
+    Route::middleware(['permission:edit workhour'])->patch('/workhours/{workhour}', [WorkHourController::class, 'update'])->name('workhours.update');
+    Route::middleware(['permission:delete workhour'])->delete('/workhours/{workhour}', [WorkHourController::class, 'destroy'])->name('workhours.destroy');
 });
 
 require __DIR__.'/auth.php';

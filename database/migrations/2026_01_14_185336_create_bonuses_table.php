@@ -8,9 +8,27 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('bonuses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('model_id')->constrained('models')->onDelete('cascade');
-            $table->decimal('amount', 15, 2);
-            $table->string('description')->nullable();
+
+            // Relación con usuarios
+            $table->foreignId('user_id')
+                  ->constrained()
+                  ->onDelete('cascade');
+
+            // Relación opcional con plataformas
+            $table->foreignId('platform_id')
+                  ->nullable()
+                  ->constrained()
+                  ->onDelete('cascade');
+
+            // Monto en USD
+            $table->decimal('amount_usd', 15, 2)->default(0);
+
+            // Razón del bono
+            $table->string('reason')->nullable();
+
+            // Periodo (ejemplo: semana 01-2026)
+            $table->string('period')->nullable();
+
             $table->timestamps();
         });
     }

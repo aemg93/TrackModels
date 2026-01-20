@@ -1,90 +1,59 @@
+<template>
+  <div class="p-6 space-y-6">
+    <!-- Título -->
+    <h1 class="text-2xl font-bold">Resumen Financiero - {{ model.name }}</h1>
+
+    <!-- Totales generales -->
+    <FinancialSummary
+      :earnings-totals="earningsTotals"
+      :bonuses-total="bonusesTotal"
+      :discounts-total="discountsTotal"
+      :net-income="netIncome"
+    />
+
+    <!-- Filtros -->
+    <FiltersPanel :model="model" :filters="filters" @apply="applyFilters" />
+
+    <!-- Tablas -->
+    <PlatformTotalsTable :totales="totales" :total-general="totalGeneral" />
+    <EarningsTable :earnings="earnings" />
+    <BonusesTable :bonuses="bonuses" />
+    <DiscountsTable :discounts="discounts" />
+
+    <!-- Gráficas -->
+    <ChartsDashboard :earnings="earnings" :platforms="totales" />
+  </div>
+</template>
+
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue'
-import { Link } from '@inertiajs/vue3'
+import { reactive } from 'vue'
+import { router } from '@inertiajs/vue3'
+
+import FinancialSummary from '@/Components/FinancialSummary.vue'
+import FiltersPanel from '@/Components/FiltersPanel.vue'
+import PlatformTotalsTable from '@/Components/PlatformTotalsTable.vue'
+import EarningsTable from '@/Components/EarningsTable.vue'
+import BonusesTable from '@/Components/BonusesTable.vue'
+import DiscountsTable from '@/Components/DiscountsTable.vue'
+import ChartsDashboard from '@/Components/ChartsDashboard.vue'
 
 const props = defineProps({
-  model: {
-    type: Object,
-    required: true,
-  },
+  model: Object,
+  earnings: Array,
+  earningsTotals: Object,
+  bonuses: Array,
+  bonusesTotal: Number,
+  discounts: Array,
+  discountsTotal: Number,
+  netIncome: Number,
+  filters: Object,
+  totales: Array,
+  totalGeneral: Object,
 })
+
+const filters = reactive({ ...props.filters })
+
+function applyFilters() {
+  router.get(route('models.show', { model: props.model.id }), filters, { preserveState: true })
+}
 </script>
-
-<template>
-  <AppLayout>
-    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-      <!-- Header con avatar -->
-      <div class="bg-gray-800 p-6 flex items-center gap-4">
-        <img v-if="props.model.avatar" :src="props.model.avatar" alt="Avatar"
-             class="w-20 h-20 rounded-full border-4 border-white shadow" />
-        <div>
-          <h1 class="text-2xl font-bold text-white">
-            {{ props.model.name }} {{ props.model.last_name }}
-          </h1>
-          <p class="text-gray-300">
-            {{ props.model.stage_name ?? 'Sin nombre artístico' }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Datos principales -->
-      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <p class="text-sm text-gray-500">Email</p>
-          <p class="font-semibold">{{ props.model.email }}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Teléfono</p>
-          <p class="font-semibold">{{ props.model.phone ?? 'No registrado' }}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Ciudad</p>
-          <p class="font-semibold">{{ props.model.city ?? 'No registrada' }}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">País</p>
-          <p class="font-semibold">{{ props.model.country ?? 'No registrado' }}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Activo</p>
-          <span :class="props.model.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                class="px-3 py-1 rounded-full text-xs font-semibold">
-            {{ props.model.active ? 'Sí' : 'No' }}
-          </span>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Ganancias</p>
-          <p class="font-semibold">$ {{ props.model.earnings }}</p>
-        </div>
-      </div>
-
-      <!-- Bio -->
-      <div class="p-6 border-t">
-        <p class="text-sm text-gray-500">Biografía</p>
-        <p class="mt-2 text-gray-700">{{ props.model.bio ?? 'Sin biografía registrada' }}</p>
-      </div>
-
-      <!-- Plataformas -->
-      <div class="p-6 border-t">
-        <p class="text-sm text-gray-500">Plataformas</p>
-        <ul v-if="props.model.platforms?.length" class="mt-2 flex flex-wrap gap-2">
-          <li v-for="platform in props.model.platforms" :key="platform.id"
-              class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
-            {{ platform.name }}
-          </li>
-        </ul>
-        <p v-else class="mt-2 text-gray-400">Sin plataformas</p>
-      </div>
-
-      <!-- Acciones -->
-      <div class="p-6 border-t flex gap-4">
-        <Link :href="route('models.edit', props.model.id)" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-          Editar
-        </Link>
-        <Link :href="route('models.index')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-          Volver al listado
-        </Link>
-      </div>
-    </div>
-  </AppLayout>
-</template>

@@ -15,7 +15,7 @@ class PlatformsSeeder extends Seeder
         // Borra todos los registros sin afectar las foreign keys
         Platform::query()->delete();
 
-        // Inserta las plataformas base
+        // Inserta las plataformas base (10 en total)
         Platform::insert([
             [
                 'name'       => 'Chaturbate',
@@ -31,6 +31,41 @@ class PlatformsSeeder extends Seeder
                 'name'       => 'Cam4',
                 'multiplier' => 1,
                 'token_rate' => 0.08,
+            ],
+            [
+                'name'       => 'Stripchat',
+                'multiplier' => 1,
+                'token_rate' => 0.06,
+            ],
+            [
+                'name'       => 'MyFreeCams',
+                'multiplier' => 1,
+                'token_rate' => 0.05,
+            ],
+            [
+                'name'       => 'BongaCams',
+                'multiplier' => 1,
+                'token_rate' => 0.04,
+            ],
+            [
+                'name'       => 'LiveJasmin',
+                'multiplier' => 1,
+                'token_rate' => 0.12,
+            ],
+            [
+                'name'       => 'OnlyFans',
+                'multiplier' => 1,
+                'token_rate' => 0.20,
+            ],
+            [
+                'name'       => 'Fansly',
+                'multiplier' => 1,
+                'token_rate' => 0.15,
+            ],
+            [
+                'name'       => 'JustForFans',
+                'multiplier' => 1,
+                'token_rate' => 0.18,
             ],
         ]);
     }

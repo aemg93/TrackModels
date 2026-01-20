@@ -12,9 +12,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
 
-    /**
-     * Campos que se pueden asignar masivamente
-     */
     protected $fillable = [
         'name',
         'last_name',
@@ -32,35 +29,38 @@ class User extends Authenticatable
         'document_path',
         'social_links',
         'active',
-        'earnings',
         'password',
     ];
 
-    /**
-     * Campos ocultos al serializar
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Casts de atributos
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'active' => 'boolean',
-        'earnings' => 'decimal:2',
+        'active'            => 'boolean',
     ];
 
-    /**
-     * Relación con plataformas
-     * Incluye credenciales en la tabla pivote platform_user
-     */
     public function platforms()
     {
         return $this->belongsToMany(Platform::class, 'platform_user')
                     ->withPivot(['platform_username', 'platform_password'])
                     ->withTimestamps();
     }
+
+    public function earnings()
+    {
+        return $this->hasMany(Earning::class, 'user_id'); 
+    }
+    public function bonuses()
+{
+    return $this->hasMany(Bonus::class, 'user_id');
+}
+
+    public function discounts()
+{
+    return $this->hasMany(Discount::class, 'user_id');
+}
+
 }

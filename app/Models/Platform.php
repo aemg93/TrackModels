@@ -28,4 +28,13 @@ class Platform extends Model
                     ->withPivot(['platform_username', 'platform_password'])
                     ->withTimestamps();
     }
+
+    /**
+     * Relación con ganancias
+     * Cada plataforma puede tener múltiples registros de earnings
+     */
+    public function earnings()
+    {
+        return $this->hasMany(Earning::class, 'platform_id');
+    }
 }

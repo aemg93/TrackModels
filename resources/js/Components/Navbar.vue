@@ -10,8 +10,13 @@
       <!-- Links principales (desktop) -->
       <nav class="hidden md:flex gap-6">
         <Link :href="route('dashboard')">Dashboard</Link>
+
         <Link v-if="hasRole('Super Admin') || hasRole('Admin') || hasRole('Modelo')" :href="route('models.index')">
           Modelos
+        </Link>
+
+        <Link v-if="hasRole('Super Admin')" :href="route('administradores.index')">
+          Administradores
         </Link>
 
         <Link :href="route('profile.edit')">Perfil</Link>
@@ -36,12 +41,15 @@
           <div v-if="open" class="absolute right-0 top-12 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg p-2 w-48 z-50">
             <ul class="text-white space-y-2">
               <li><Link :href="route('dashboard')" @click="closeMenu">Dashboard</Link></li>
+
               <li v-if="hasRole('Super Admin')">
-                <Link :href="route('superadmin.index')" @click="closeMenu">Super Admin</Link>
+                <Link :href="route('administradores.index')" @click="closeMenu">Administradores</Link>
               </li>
+
               <li v-if="hasRole('Super Admin') || hasRole('Admin') || hasRole('Modelo')">
                 <Link :href="route('models.index')" @click="closeMenu">Modelos</Link>
               </li>
+
               <li><Link :href="route('profile.edit')" @click="closeMenu">Perfil</Link></li>
               <li><button @click="logout">Cerrar sesión</button></li>
               <li><button @click="goBack">← Regresar</button></li>
