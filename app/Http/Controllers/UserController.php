@@ -45,7 +45,21 @@ class UserController extends Controller
             'social_links'  => 'nullable|string|max:255',
             'active'        => 'boolean',
             'earnings'      => 'nullable|numeric|min:0',
-            'password'      => 'required|string|min:8',
+            'password'      => [
+                'required',
+                'string',
+                'min:8',
+                function ($attribute, $value, $fail) {
+                    $conditions = 0;
+                    if (preg_match('/[A-Z]/', $value)) $conditions++;
+                    if (preg_match('/[a-z]/', $value)) $conditions++;
+                    if (preg_match('/[0-9]/', $value)) $conditions++;
+                    if (preg_match('/[^A-Za-z0-9]/', $value)) $conditions++;
+                    if ($conditions < 2) {
+                        $fail('La contraseña debe tener al menos 8 caracteres y cumplir 2 condiciones: mayúscula, minúscula, número o carácter especial.');
+                    }
+                },
+            ],
             'role'          => 'required|string|in:Super Admin,Admin,Modelo',
         ]);
 
@@ -94,7 +108,23 @@ class UserController extends Controller
             'social_links'  => 'nullable|string|max:255',
             'active'        => 'boolean',
             'earnings'      => 'nullable|numeric|min:0',
-            'password'      => 'nullable|string|min:8',
+            'password'      => [
+                'nullable',
+                'string',
+                'min:8',
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $conditions = 0;
+                        if (preg_match('/[A-Z]/', $value)) $conditions++;
+                        if (preg_match('/[a-z]/', $value)) $conditions++;
+                        if (preg_match('/[0-9]/', $value)) $conditions++;
+                        if (preg_match('/[^A-Za-z0-9]/', $value)) $conditions++;
+                        if ($conditions < 2) {
+                            $fail('La contraseña debe tener al menos 8 caracteres y cumplir 2 condiciones: mayúscula, minúscula, número o carácter especial.');
+                        }
+                    }
+                },
+            ],
             'role'          => 'required|string|in:Super Admin,Admin,Modelo',
         ]);
 
@@ -130,9 +160,12 @@ class UserController extends Controller
             'password' => 'nullable|string|max:255',
         ]);
 
-        $user->platforms()->updateExistingPivot($platform->id, [
-            'username' => $validated['username'],
-            'password' => $validated['password'],
+        // Usamos syncWithoutDetaching para no perder otras plataformas
+        $user->platforms()->syncWithoutDetaching([
+            $platform->id => [
+                'username' => $validated['username'],
+                'password' => $validated['password'],
+            ]
         ]);
 
         return redirect()->back()->with('success', 'Credenciales actualizadas correctamente');
