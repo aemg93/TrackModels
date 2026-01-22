@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ModelController;
+use App\Http\Controllers\ModelFinanceController;
+use App\Http\Controllers\GlobalFinanceController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\WorkHourController;
@@ -14,7 +16,7 @@ use Inertia\Inertia;
  */
 Route::get('/', [SuperAdminController::class, 'index'])
     ->middleware(['auth', 'role:Super Admin'])
-    ->name('superadmin.index');
+    ->name('dashboard.superadmin'); // nombre único para evitar conflicto
 
 Route::middleware('auth')->group(function () {
     // Dashboard genérico → evita error de Ziggy
@@ -22,7 +24,7 @@ Route::middleware('auth')->group(function () {
         $user = auth()->user();
 
         if ($user->hasRole('Super Admin')) {
-            return redirect()->route('superadmin.index');
+            return redirect()->route('dashboard.superadmin'); // ajustado al nuevo nombre
         } elseif ($user->hasRole('Admin')) {
             return redirect()->route('admin.index');
         } elseif ($user->hasRole('Modelo')) {
@@ -66,15 +68,31 @@ Route::middleware('auth')->group(function () {
     });
 
     /**
-     * Admin y Super Admin → acceso a modelos
+     * Admin y Super Admin → acceso a modelos (CRUD sin show ni destroy)
      */
     Route::middleware('role:Admin|Super Admin')->group(function () {
-        Route::resource('models', ModelController::class)->except(['destroy']);
+        Route::resource('models', ModelController::class)->except(['show','destroy']);
     });
 
     // Solo Super Admin puede eliminar modelos
     Route::middleware('role:Super Admin')->group(function () {
         Route::delete('/models/{model}', [ModelController::class, 'destroy'])->name('models.destroy');
+    });
+
+    /**
+     * Finanzas individuales de un modelo (antes era show)
+     */
+    Route::middleware('role:Modelo|Admin|Super Admin')->group(function () {
+        Route::get('/models/{model}/finance', [ModelFinanceController::class, 'show'])
+            ->name('models.finance.show');
+    });
+
+    /**
+     * Finanzas globales
+     */
+    Route::middleware('role:Admin|Super Admin')->group(function () {
+        Route::get('/dashboard/finance', [GlobalFinanceController::class, 'index'])
+            ->name('finance.global.index');
     });
 
     /**

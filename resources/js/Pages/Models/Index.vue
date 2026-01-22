@@ -44,8 +44,11 @@ defineProps({
               </span>
             </td>
             <td class="px-6 py-4 text-sm font-medium space-x-2">
-              <Link :href="route('models.show', model.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+              <!-- Ajuste: ahora usamos models.finance.show -->
+              <Link :href="route('models.finance.show', model.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+
               <Link :href="route('models.edit', model.id)" class="text-yellow-600 hover:text-yellow-900">Editar</Link>
+
               <Link :href="route('models.destroy', model.id)" method="delete" as="button" class="text-red-600 hover:text-red-900">Eliminar</Link>
             </td>
           </tr>

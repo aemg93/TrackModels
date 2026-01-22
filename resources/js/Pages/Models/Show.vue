@@ -54,6 +54,7 @@ const props = defineProps({
 const filters = reactive({ ...props.filters })
 
 function applyFilters() {
-  router.get(route('models.show', { model: props.model.id }), filters, { preserveState: true })
+  // Ajuste: ahora usamos models.finance.show
+  router.get(route('models.finance.show', props.model.id), filters, { preserveState: true })
 }
 </script>

@@ -46,26 +46,35 @@ const platformColors = [
   '#fb7185'  
 ]
 
-
 function renderCharts() {
   // destruir instancias previas si existen
   if (lineChart.value) lineChart.value.destroy()
   if (barChart.value) barChart.value.destroy()
   if (pieChart.value) pieChart.value.destroy()
 
-  // línea
+  // línea: Tokens y USD juntos
   lineChart.value = new Chart(document.getElementById('earningsLine'), {
     type: 'line',
     data: {
       labels: props.earnings.map(e => e.period),
-      datasets: [{
-        label: 'Ganancias USD',
-        data: props.earnings.map(e => e.amount_usd),
-        borderColor: '#4f46e5',
-        backgroundColor: 'rgba(79,70,229,0.2)',
-        fill: true,
-        tension: 0.3
-      }]
+      datasets: [
+        {
+          label: 'Tokens',
+          data: props.earnings.map(e => e.tokens),
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.2)',
+          fill: false,
+          tension: 0.3
+        },
+        {
+          label: 'USD',
+          data: props.earnings.map(e => e.usd), // corregido: antes usabas amount_usd
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79,70,229,0.2)',
+          fill: false,
+          tension: 0.3
+        }
+      ]
     },
     options: { responsive: true, maintainAspectRatio: false }
   })

@@ -37,7 +37,6 @@ const form = useForm({
   bio: props.model.bio,
   social_links: props.model.social_links,
   active: props.model.active,
-  earnings: props.model.earnings,
   password: '',
   platform_ids: props.model.platforms.map(p => p.id),
 })

@@ -16,15 +16,26 @@
         </thead>
         <tbody>
           <tr 
-            v-for="e in earnings" 
-            :key="e.id"
+            v-for="(e, index) in earnings" 
+            :key="index"
             class="hover:bg-blue-800 transition-colors"
           >
-            <td class="border border-white px-4 py-2 text-white">{{ e.platform.name }}</td>
-            <td class="border border-white px-4 py-2 text-green-400 font-bold">{{ e.amount_tokens }}</td>
-            <td class="border border-white px-4 py-2 text-green-400 font-bold">${{ e.amount_usd }}</td>
-            <td class="border border-white px-4 py-2 text-green-400 font-bold">${{ (e.amount_usd * e.exchange_rate).toFixed(2) }}</td>
-            <td class="border border-white px-4 py-2 text-white">{{ e.period }}</td>
+            <!-- Ahora earnings trae el objeto platform completo -->
+            <td class="border border-white px-4 py-2 text-white">
+              {{ e.platform.name }}
+            </td>
+            <td class="border border-white px-4 py-2 text-green-400 font-bold">
+              {{ e.tokens }}
+            </td>
+            <td class="border border-white px-4 py-2 text-green-400 font-bold">
+              ${{ e.usd }}
+            </td>
+            <td class="border border-white px-4 py-2 text-green-400 font-bold">
+              ${{ e.cop }}
+            </td>
+            <td class="border border-white px-4 py-2 text-white">
+              {{ e.period }}
+            </td>
           </tr>
         </tbody>
       </table>
